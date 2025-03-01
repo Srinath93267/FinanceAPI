@@ -2,7 +2,7 @@ name: .NET Core CI/CD
 
 on:
   push:
-    branches: [ main, develop ]  # Runs on push to main or develop
+    branches: [ main, develop, feature/FinanceAPI ]  # Runs on push to main or develop or feature
   pull_request:
     branches: [ main, develop ]  # Runs on PRs to main or develop
 
