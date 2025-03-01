@@ -1,0 +1,29 @@
+name: .NET Core CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]  # Runs on push to main or develop
+  pull_request:
+    branches: [ main, develop ]  # Runs on PRs to main or develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Runs on Linux
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4  # Gets the latest code
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'  # Use the latest .NET 8
+
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      - name: Build the Project
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run Unit Tests
+        run: dotnet test --configuration Release --no-build --verbosity normal
