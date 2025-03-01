@@ -1,0 +1,9 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/FinanceAPI/bin/Debug/net8.0
+/FinanceAPI/.vs
+/FinanceAPI/obj
+/FinanceAPI/Properties
+/.vs
