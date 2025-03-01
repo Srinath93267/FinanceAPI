@@ -3,3 +3,7 @@
 ################################################################################
 
 /FinanceAPI/bin/Debug/net8.0
+/FinanceAPI/.vs
+/FinanceAPI/obj
+/FinanceAPI/Properties
+/.vs
