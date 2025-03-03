@@ -444,12 +444,13 @@ namespace FinanceAPI.Controllers
                     using SqlDataReader reader = command.ExecuteReader();
                     if (reader.HasRows)
                     {
-                        reader.DisposeAsync();
+                        reader.Dispose();
                         string deleteAPresetDetailQuery = String.Format("EXEC DELETE_PRESET @PresetId={0}", presetId);
                         using SqlCommand command2 = new(deleteAPresetDetailQuery, connection);
                         try
                         {
-                            command2.ExecuteReaderAsync();
+                            using SqlDataReader reader2=command2.ExecuteReader();
+                            reader2.Dispose();
                         }
                         catch (SqlException ex)
                         {
