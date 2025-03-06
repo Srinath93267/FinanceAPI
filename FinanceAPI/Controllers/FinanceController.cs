@@ -10,23 +10,32 @@ namespace FinanceAPI.Controllers
     [ApiController]
     public class FinanceController : ControllerBase
     {
+        #region Private Variables
         private readonly ILogger<FinanceController> _logger;
         private readonly IConfiguration _configuration;
         private readonly string database = string.Empty;
         private readonly string connectionString = string.Empty;
+        private readonly string _secretApiKey = string.Empty;
+        #endregion
         public FinanceController(IConfiguration configuration, ILogger<FinanceController> logger)
         {
             _logger = logger;
             _configuration = configuration;
-            database = _configuration["Database"] ?? "";
+            database = _configuration["Database"] ?? string.Empty;
+            _secretApiKey = _configuration["ApiSettings:SecretKey"] ?? string.Empty;
             connectionString = String.Format("Server=localhost;Database={0};Trusted_Connection=True;Encrypt=True;TrustServerCertificate=True;", database);
         }
 
         // GET: api/<FinanceController>
         [HttpGet]
         [Route("GetAllReportsList")]
-        public ActionResult<List<ReportList>> GetAllReportsList()
+        public ActionResult<List<ReportList>> GetAllReportsList([FromHeader(Name = "X-API-KEY")] string apiKey)
         {
+            if (apiKey != _secretApiKey || apiKey == string.Empty)
+            {
+                return Unauthorized(new { message = "Invalid API Key" });
+            }
+
             List<ReportList> reportList = [];
 
             string query = "SELECT * FROM REPORT_LIST";
@@ -81,8 +90,13 @@ namespace FinanceAPI.Controllers
 
         [HttpGet]
         [Route("GetAllPresetsList")]
-        public ActionResult<List<Preset>> GetAllPresetsList()
+        public ActionResult<List<Preset>> GetAllPresetsList([FromHeader(Name = "X-API-KEY")] string apiKey)
         {
+            if (apiKey != _secretApiKey || apiKey == string.Empty)
+            {
+                return Unauthorized(new { message = "Invalid API Key" });
+            }
+
             List<Preset> presetList = [];
             string query = "EXEC GET_ALL_PRESET_DETAILS;";
             DataTable presetListsTable = new();
@@ -138,8 +152,13 @@ namespace FinanceAPI.Controllers
 
         [HttpGet]
         [Route("GetAPresetDetail/{presetId}")]
-        public ActionResult<Preset> GetAPresetDetail(int presetId)
+        public ActionResult<Preset> GetAPresetDetail([FromHeader(Name = "X-API-KEY")] string apiKey, int presetId)
         {
+            if (apiKey != _secretApiKey || apiKey == string.Empty)
+            {
+                return Unauthorized(new { message = "Invalid API Key" });
+            }
+
             Preset preset;
             string query = String.Format("EXEC GET_A_PRESET_DETAIL @PresetId={0};", presetId);
             DataTable presetListsTable = new();
@@ -192,8 +211,13 @@ namespace FinanceAPI.Controllers
 
         [HttpGet]
         [Route("GetAnAccountDetail/{AccountNumber}")]
-        public ActionResult<Account> GetAnAccountDetail(Int64 AccountNumber)
+        public ActionResult<Account> GetAnAccountDetail([FromHeader(Name = "X-API-KEY")] string apiKey, Int64 AccountNumber)
         {
+            if (apiKey != _secretApiKey || apiKey == string.Empty)
+            {
+                return Unauthorized(new { message = "Invalid API Key" });
+            }
+
             Account account;
             string query = String.Format("EXEC GET_AN_ACCOUNT_DETAIL @AccountNumber={0};", AccountNumber);
             DataTable accountDetailTable = new();
@@ -241,8 +265,13 @@ namespace FinanceAPI.Controllers
 
         [HttpGet]
         [Route("GetAccounts")]
-        public ActionResult<List<Account>> GetAccounts()
+        public ActionResult<List<Account>> GetAccounts([FromHeader(Name = "X-API-KEY")] string apiKey)
         {
+            if (apiKey != _secretApiKey || apiKey == string.Empty)
+            {
+                return Unauthorized(new { message = "Invalid API Key" });
+            }
+
             List<Account> accountList;
             string query = "EXEC GET_ACCOUNTS";
             DataTable accountDetailTable = new();
@@ -290,8 +319,13 @@ namespace FinanceAPI.Controllers
 
         [HttpGet]
         [Route("GetPortfolioPerformanceData/{AccountNumber}")]
-        public ActionResult<PortfolioPerformance> GetPortfolioPerformanceData(Int64 AccountNumber)
+        public ActionResult<PortfolioPerformance> GetPortfolioPerformanceData([FromHeader(Name = "X-API-KEY")] string apiKey, Int64 AccountNumber)
         {
+            if (apiKey != _secretApiKey || apiKey == string.Empty)
+            {
+                return Unauthorized(new { message = "Invalid API Key" });
+            }
+
             PortfolioPerformance portfolioPerformanceData;
             string query = String.Format("EXEC GET_PORTFOLIO_PERFORMANCE_DATA @AccountNumber={0};", AccountNumber);
             DataTable portfolioPerformanceDataTable = new();
@@ -361,12 +395,17 @@ namespace FinanceAPI.Controllers
 
         [HttpPut]
         [Route("CreateNewPreset")]
-        public ActionResult<int> CreateNewPreset([FromBody] NewPreset preset)
+        public ActionResult<int> CreateNewPreset([FromHeader(Name = "X-API-KEY")] string apiKey, [FromBody] NewPreset preset)
         {
+            if (apiKey != _secretApiKey || apiKey == string.Empty)
+            {
+                return Unauthorized(new { message = "Invalid API Key" });
+            }
+
             string newPresetInsertQuery = String.Format("EXEC CREATE_NEW_PRESET @PresetName='{0}';", preset.Name);
             DataTable newPresetInsertedTable = new();
             DataTable newPresetReportsInsertedTable = new();
-            int presetID=0;
+            int presetID = 0;
             string presetName = string.Empty;
             using SqlConnection connection = new(connectionString);
             using SqlCommand command = new(newPresetInsertQuery, connection);
@@ -431,8 +470,13 @@ namespace FinanceAPI.Controllers
 
         [HttpDelete]
         [Route("DeletePreset")]
-        public IActionResult DeletePreset([FromBody] int presetId)
+        public IActionResult DeletePreset([FromHeader(Name = "X-API-KEY")] string apiKey, [FromBody] int presetId)
         {
+            if (apiKey != _secretApiKey || apiKey == string.Empty)
+            {
+                return Unauthorized(new { message = "Invalid API Key" });
+            }
+
             string getAPresetDetailquery = String.Format("EXEC GET_A_PRESET_DETAIL @PresetId={0}", presetId);
             using (SqlConnection connection = new(connectionString))
             {
@@ -448,7 +492,7 @@ namespace FinanceAPI.Controllers
                         using SqlCommand command2 = new(deleteAPresetDetailQuery, connection);
                         try
                         {
-                            using SqlDataReader reader2=command2.ExecuteReader();
+                            using SqlDataReader reader2 = command2.ExecuteReader();
                             reader2.Dispose();
                         }
                         catch (SqlException ex)
