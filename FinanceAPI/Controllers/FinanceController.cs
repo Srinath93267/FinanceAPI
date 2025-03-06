@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Logging;
 using System.Data;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -362,62 +361,71 @@ namespace FinanceAPI.Controllers
 
         [HttpPut]
         [Route("CreateNewPreset")]
-        public IActionResult CreateNewPreset([FromBody] Preset preset)
+        public ActionResult<int> CreateNewPreset([FromBody] NewPreset preset)
         {
             string newPresetInsertQuery = String.Format("EXEC CREATE_NEW_PRESET @PresetName='{0}';", preset.Name);
             DataTable newPresetInsertedTable = new();
             DataTable newPresetReportsInsertedTable = new();
-            using (SqlConnection connection = new(connectionString))
+            int presetID=0;
+            string presetName = string.Empty;
+            using SqlConnection connection = new(connectionString);
+            using SqlCommand command = new(newPresetInsertQuery, connection);
+            try
             {
-                using SqlCommand command = new(newPresetInsertQuery, connection);
-                try
-                {
-                    connection.Open();
+                connection.Open();
 
-                    using SqlDataReader reader = command.ExecuteReader();
-                    if (reader.HasRows)
+                using SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    newPresetInsertedTable.Load(reader);
+                    reader?.Dispose();
+                    presetID = newPresetInsertedTable.AsEnumerable().Select(row => Convert.ToInt32(row[0])).FirstOrDefault();
+                    presetName = newPresetInsertedTable.AsEnumerable().Select(row => Convert.ToInt32(row[0])).FirstOrDefault().ToString();
+                    foreach (ReportList reportList in preset.Reports)
                     {
-                        newPresetInsertedTable.Load(reader);
-                        int presetID = newPresetInsertedTable.AsEnumerable().Select(row => Convert.ToInt32(row[0])).FirstOrDefault();
-                        foreach (ReportList reportList in preset.Reports)
+                        string newPresetReportInsertQuery = String.Format("EXEC ADD_REPORT_TO_PRESET @PresetId={0}, @ReportId={1};", presetID, reportList.Id);
+                        using SqlCommand command2 = new(newPresetReportInsertQuery, connection);
+                        try
                         {
-                            string newPresetReportInsertQuery = String.Format("EXEC ADD_REPORT_TO_PRESET @PresetId={0}, @ReportId={1};", presetID, reportList.Id);
-                            using SqlCommand command2 = new(newPresetReportInsertQuery, connection);
-                            try
+                            using SqlDataReader reader2 = command2.ExecuteReader();
+                            reader2?.Dispose();
+                            //command2.Dispose();
+                        }
+                        catch (SqlException ex)
+                        {
+                            if (connection.State == ConnectionState.Open)
                             {
-                                command2.ExecuteReaderAsync();
+                                connection.Close();
                             }
-                            catch (SqlException ex)
-                            {
-                                _logger.LogError(
-                                        String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
-                                    );
-                                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
-                            }
+                            _logger.LogError(
+                                String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                            );
+                            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                         }
                     }
-                    reader.DisposeAsync();
-                    return StatusCode(StatusCodes.Status200OK, String.Format("The Preset {0} has been created successfully", preset.Name));
                 }
-                catch (SqlException ex)
-                {
-                    _logger.LogError(
-                                        String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
-                                    );
-                    return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(
-                                        String.Format("An unexpected error occurred.\n Error Details:\n{0}", ex.Message)
-                                    );
-                    return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
-                }
-                finally
-                {
-                    newPresetInsertedTable?.Dispose();
-                    newPresetReportsInsertedTable?.Dispose();
-                }
+                reader?.Dispose();
+                //return StatusCode(StatusCodes.Status200OK, String.Format("The Preset {0} has been created successfully", presetName));
+                return Ok(presetID);
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(
+                                    String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                );
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                                    String.Format("An unexpected error occurred.\n Error Details:\n{0}", ex.Message)
+                                );
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+            finally
+            {
+                newPresetInsertedTable?.Dispose();
+                newPresetReportsInsertedTable?.Dispose();
             }
         }
 
@@ -435,12 +443,13 @@ namespace FinanceAPI.Controllers
                     using SqlDataReader reader = command.ExecuteReader();
                     if (reader.HasRows)
                     {
-                        reader.DisposeAsync();
+                        reader.Dispose();
                         string deleteAPresetDetailQuery = String.Format("EXEC DELETE_PRESET @PresetId={0}", presetId);
                         using SqlCommand command2 = new(deleteAPresetDetailQuery, connection);
                         try
                         {
-                            command2.ExecuteReaderAsync();
+                            using SqlDataReader reader2=command2.ExecuteReader();
+                            reader2.Dispose();
                         }
                         catch (SqlException ex)
                         {
@@ -510,6 +519,13 @@ namespace FinanceAPI.Controllers
     public class Preset
     {
         public int Id { get; set; }
+        public required string Name { get; set; }
+        public required ReportList[] Reports { get; set; }
+        public required string CreatedBy { get; set; } = string.Empty;
+    }
+
+    public class NewPreset
+    {
         public required string Name { get; set; }
         public required ReportList[] Reports { get; set; }
         public required string CreatedBy { get; set; } = string.Empty;
