@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using System;
 using System.Data;
+using System.Linq;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -318,8 +320,8 @@ namespace FinanceAPI.Controllers
         }
 
         [HttpGet]
-        [Route("GetPortfolioPerformanceData/{AccountNumber}")]
-        public ActionResult<PortfolioPerformance> GetPortfolioPerformanceData([FromHeader(Name = "X-API-KEY")] string apiKey, Int64 AccountNumber)
+        [Route("GetPortfolioPerformanceData")]
+        public ActionResult<PortfolioPerformance> GetPortfolioPerformanceData([FromHeader(Name = "X-API-KEY")] string apiKey, [FromHeader(Name = "ACCOUNT")] Int64 AccountNumber)
         {
             if (apiKey != _secretApiKey || apiKey == string.Empty)
             {
@@ -343,14 +345,24 @@ namespace FinanceAPI.Controllers
                         portfolioPerformanceData = portfolioPerformanceDataTable.AsEnumerable().Select(row =>
                         new PortfolioPerformance
                         {
-                            PortfolioID = Convert.ToInt32(row[0]),
-                            AccountNumber = Convert.ToInt32(row[1]),
-                            ClientName = (string)row[2],
+                            PortfolioID = Convert.ToInt32(row[1]),
+                            AccountNumber = Convert.ToInt32(row[2]),
+                            ClientName = (string)row[0],
                             TotalPortfolioValue = (decimal)row[3],
                             InvestmentGrowthYTD = (decimal)row[4],
-                            AnnualizedReturn3Y = (decimal)row[5],
-                            RiskLevel = (string)row[6],
-                            BenchmarkPerformance = (decimal)row[7]
+                            InvestmentGrowth1Y = (decimal)row[5],
+                            InvestmentGrowth3Y = (decimal)row[6],
+                            InvestmentGrowth5Y = (decimal)row[7],
+                            InvestmentGrowth10Y = (decimal)row[8],
+                            InvestmentGrowthSinceInception = (decimal)row[9],
+                            AnnualizedReturnYTD = (decimal)row[10],
+                            AnnualizedReturn1Y = (decimal)row[11],
+                            AnnualizedReturn3Y = (decimal)row[12],
+                            AnnualizedReturn5Y = (decimal)row[13],
+                            AnnualizedReturn10Y = (decimal)row[14],
+                            AnnualizedReturnSinceInception = (decimal)row[15],
+                            RiskLevel = (string)row[16],
+                            BenchmarkPerformance = (decimal)row[17]
                         }).FirstOrDefault() ??
                         new PortfolioPerformance
                         {
@@ -359,6 +371,16 @@ namespace FinanceAPI.Controllers
                             ClientName = "",
                             TotalPortfolioValue = 0,
                             InvestmentGrowthYTD = 0,
+                            InvestmentGrowth1Y = 0,
+                            InvestmentGrowth3Y = 0,
+                            InvestmentGrowth5Y = 0,
+                            InvestmentGrowth10Y = 0,
+                            InvestmentGrowthSinceInception = 0,
+                            AnnualizedReturnYTD = 0,
+                            AnnualizedReturn1Y = 0,
+                            AnnualizedReturn5Y = 0,
+                            AnnualizedReturn10Y = 0,
+                            AnnualizedReturnSinceInception = 0,
                             AnnualizedReturn3Y = 0,
                             RiskLevel = "",
                             BenchmarkPerformance = 0
@@ -391,6 +413,102 @@ namespace FinanceAPI.Controllers
             }
 
             return portfolioPerformanceData;
+        }
+
+        [HttpGet]
+        [Route("GetAssetAllocationData")]
+        public ActionResult<AssetAllocation> GetAssetAllocationData([FromHeader(Name = "X-API-KEY")] string apiKey, [FromHeader(Name = "ACCOUNT")] Int64 AccountNumber)
+        {
+            if (apiKey != _secretApiKey || apiKey == string.Empty)
+            {
+                return Unauthorized(new { message = "Invalid API Key" });
+            }
+
+            AssetAllocation assetAllocationData;
+            string query = String.Format("EXEC GET_ASSET_ALLOCATION_DATA @AccountNumber={0};", AccountNumber);
+            DataTable assetAllocationDataTable = new();
+            using (SqlConnection connection = new(connectionString))
+            {
+                using SqlCommand command = new(query, connection);
+                try
+                {
+                    connection.Open();
+
+                    using SqlDataReader reader = command.ExecuteReader();
+                    if (reader.HasRows)
+                    {
+                        assetAllocationDataTable.Load(reader);
+                        assetAllocationData =
+                        new AssetAllocation
+                        {
+                            AllocationID = assetAllocationDataTable.AsEnumerable().Select(row => Convert.ToInt32(row[1])).Distinct().FirstOrDefault(),
+                            AccountNumber = assetAllocationDataTable.AsEnumerable().Select(row => Convert.ToInt32(row[2])).Distinct().FirstOrDefault(),
+                            ClientName = assetAllocationDataTable.AsEnumerable().Select(row => (string)row[0]).FirstOrDefault() ?? "",
+                            AssetClass = [.. assetAllocationDataTable.AsEnumerable().Select(row => (string)row[3])],
+                            AllocationPercentage = [.. assetAllocationDataTable.AsEnumerable().Select(row => (decimal)row[4])],
+                            MarketValue = [.. assetAllocationDataTable.AsEnumerable().Select(row => (decimal)row[5])],
+                            ExpectedReturnPercentage = [.. assetAllocationDataTable.AsEnumerable().Select(row => (decimal)row[6])],
+                            HistoricalPerformance3Y = [.. assetAllocationDataTable.AsEnumerable().Select(row => (decimal)row[7])],
+                            HistoricalPerformance5Y = [.. assetAllocationDataTable.AsEnumerable().Select(row => (decimal)row[8])],
+                            VolatilityRiskLevel = [.. assetAllocationDataTable.AsEnumerable().Select(row => (string)row[9])],
+                            TargetAllocationPercentage = [.. assetAllocationDataTable.AsEnumerable().Select(row => (decimal)row[10])],
+                            DeviationFromTarget = [.. assetAllocationDataTable.AsEnumerable().Select(row => (decimal)row[11])],
+                            RebalancingRequired = [.. assetAllocationDataTable.AsEnumerable().Select(row => (bool)row[12])],
+                            LiquidityLevel = [.. assetAllocationDataTable.AsEnumerable().Select(row => (string)row[13])],
+                            MaturityDate = [.. assetAllocationDataTable.AsEnumerable().Select(row => row[14] != DBNull.Value ? (DateTime)row[14] : DateTime.MinValue)],
+                            DividendYield = [.. assetAllocationDataTable.AsEnumerable().Select(row => (decimal)row[15])],
+                            AdvisorNotes = [.. assetAllocationDataTable.AsEnumerable().Select(row => (string)row[16])],
+                            CurrencyType = [.. assetAllocationDataTable.AsEnumerable().Select(row => (string)row[17])]
+                        } ??
+                        new AssetAllocation
+                        {
+                            AllocationID = 0,
+                            AccountNumber = 0,
+                            ClientName = "",
+                            AssetClass = [],
+                            AllocationPercentage = [],
+                            MarketValue = [],
+                            ExpectedReturnPercentage = [],
+                            HistoricalPerformance3Y = [],
+                            HistoricalPerformance5Y = [],
+                            VolatilityRiskLevel = [],
+                            TargetAllocationPercentage = [],
+                            DeviationFromTarget = [],
+                            RebalancingRequired = [false],
+                            LiquidityLevel = [],
+                            MaturityDate = [DateTime.MinValue],
+                            DividendYield = [],
+                            AdvisorNotes = [],
+                            CurrencyType = [],
+                        };
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+
+                }
+                catch (SqlException ex)
+                {
+                    _logger.LogError(
+                                     String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                 );
+                    return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(
+                                   String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                               );
+                    return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                }
+                finally
+                {
+                    assetAllocationDataTable?.Dispose();
+                }
+            }
+
+            return assetAllocationData;
         }
 
         [HttpPut]
@@ -587,10 +705,45 @@ namespace FinanceAPI.Controllers
         public Int64 AccountNumber { get; set; }
         public required string ClientName { get; set; }
         public decimal TotalPortfolioValue { get; set; }
+
+        // Investment Growth
         public decimal InvestmentGrowthYTD { get; set; }
+        public decimal InvestmentGrowth1Y { get; set; }
+        public decimal InvestmentGrowth3Y { get; set; }
+        public decimal InvestmentGrowth5Y { get; set; }
+        public decimal InvestmentGrowth10Y { get; set; }
+        public decimal InvestmentGrowthSinceInception { get; set; }
+
+        // Annualized Returns
+        public decimal AnnualizedReturnYTD { get; set; }
+        public decimal AnnualizedReturn1Y { get; set; }
         public decimal AnnualizedReturn3Y { get; set; }
+        public decimal AnnualizedReturn5Y { get; set; }
+        public decimal AnnualizedReturn10Y { get; set; }
+        public decimal AnnualizedReturnSinceInception { get; set; }
         public required string RiskLevel { get; set; }
         public decimal BenchmarkPerformance { get; set; }
-        //public DateTime LastUpdated { get; set; }
+    }
+
+    public class AssetAllocation
+    {
+        public Int64 AllocationID { get; set; }
+        public Int64 AccountNumber { get; set; }
+        public required string ClientName { get; set; }
+        public required string[] AssetClass { get; set; }
+        public required decimal[] AllocationPercentage { get; set; }
+        public required decimal[] MarketValue { get; set; }
+        public required decimal[] ExpectedReturnPercentage { get; set; }
+        public required decimal[] HistoricalPerformance3Y { get; set; }
+        public required decimal[] HistoricalPerformance5Y { get; set; }
+        public required string[] VolatilityRiskLevel { get; set; }
+        public required decimal[] TargetAllocationPercentage { get; set; }
+        public required decimal[] DeviationFromTarget { get; set; }
+        public required bool[] RebalancingRequired { get; set; }
+        public required string[] LiquidityLevel { get; set; }
+        public required DateTime[] MaturityDate { get; set; }
+        public required decimal[] DividendYield { get; set; }
+        public required string[] AdvisorNotes { get; set; }
+        public required string[] CurrencyType { get; set; }
     }
 }
