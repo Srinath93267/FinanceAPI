@@ -316,7 +316,7 @@ namespace FinanceAPI.Controllers
                 }
             }
 
-            return accountList;
+            return Ok(accountList);
         }
 
         [HttpGet]
@@ -511,6 +511,75 @@ namespace FinanceAPI.Controllers
             return assetAllocationData;
         }
 
+        [HttpGet]
+        [Route("GetFinalReportsByAccount")]
+        public ActionResult<List<FinalReport>> GetFinalReportsByAccount([FromHeader(Name = "X-API-KEY")] string apiKey, [FromHeader(Name = "ACCOUNT")] Int64 AccountNumber)
+        {
+            if (apiKey != _secretApiKey || apiKey == string.Empty)
+            {
+                return Unauthorized(new { message = "Invalid API Key" });
+            }
+
+            List<FinalReport> finalReportsData=[];
+            string query = String.Format("EXEC GET_FINAL_REPORT_REQUEST_BY_ACCNUM @Accountnumber={0};", AccountNumber);
+            DataTable finalReportsDataTable = new();
+            using (SqlConnection connection = new(connectionString))
+            {
+                using SqlCommand command = new(query, connection);
+                try
+                {
+                    connection.Open();
+
+                    using SqlDataReader reader = command.ExecuteReader();
+                    if (reader.HasRows)
+                    {
+                        finalReportsDataTable.Load(reader);
+                        finalReportsData = [.. finalReportsDataTable.AsEnumerable().Select(row => new FinalReport
+                        {
+                            FinalReportID = Convert.ToInt32(row[0]),
+                            AccountNumber = Convert.ToInt32(row[1]),
+                            ReportTitle = (string)row[2],
+                            ReportPdf = row[3] != DBNull.Value ? (byte[])row[3] : Array.Empty<byte>(),
+                            ReportDate = (DateTime)row[4],
+                            PresetID = Convert.ToInt32(row[5]!=DBNull.Value?row[5]:0),
+                            CreatedBy = (string)row[6],
+                            StatusCd = Convert.ToInt32(row[7]),
+                            ReportIDs = (string)row[8],
+                            CreatedOn = (DateTime)row[9],
+                            LastUpdatedOn = (DateTime)row[10],
+                            ClientName = (string)row[11],
+                            PresetName = row[12]!=DBNull.Value?(string)row[12]:""
+                        })];
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+
+                }
+                catch (SqlException ex)
+                {
+                    _logger.LogError(
+                                     String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                 );
+                    return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(
+                                   String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                               );
+                    return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                }
+                finally
+                {
+                    finalReportsDataTable?.Dispose();
+                }
+            }
+
+            return finalReportsData;
+        }
+
         [HttpPut]
         [Route("CreateNewPreset")]
         public ActionResult<int> CreateNewPreset([FromHeader(Name = "X-API-KEY")] string apiKey, [FromBody] NewPreset preset)
@@ -583,6 +652,55 @@ namespace FinanceAPI.Controllers
             {
                 newPresetInsertedTable?.Dispose();
                 newPresetReportsInsertedTable?.Dispose();
+            }
+        }
+
+        [HttpPut]
+        [Route("CreateNewFinalReportRequest")]
+        public ActionResult<int> CreateNewFinalReportRequest([FromBody] FinalReport finalReport)
+        {
+            //if (apiKey != _secretApiKey || apiKey == string.Empty)
+            //{
+            //    return Unauthorized(new { message = "Invalid API Key" });
+            //}
+
+            string newfinalReportInsertQuery = String.Format("EXEC INSERT_FINAL_REPORT_REQUEST @Accountnumber={0}, @Reporttitle='{1}', @Reportdate='{2}', @Createdby='{3}', @Statuscode={4}, @Reportids='{5}';",
+                                                                                                finalReport.AccountNumber, finalReport.ReportTitle, finalReport.ReportDate.ToString("yyyy/MM/dd").Replace('/', '-'), finalReport.CreatedBy, 500, finalReport.ReportIDs);
+            DataTable newfinalReportInsertedTable = new();
+            using SqlConnection connection = new(connectionString);
+            using SqlCommand command = new(newfinalReportInsertQuery, connection);
+            try
+            {
+                connection.Open();
+
+                using SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    newfinalReportInsertedTable.Load(reader);
+                    reader?.Dispose();
+                }
+                _logger.LogInformation(
+                                    String.Format("The Final Report request has been created successfully. Final Report ID: {0}", newfinalReportInsertedTable.AsEnumerable().Select(row => (decimal)row[0]).FirstOrDefault()));
+                return StatusCode(StatusCodes.Status200OK, String.Format("The Final Report request has been created successfully. Final Report ID: {0}",
+                                                           newfinalReportInsertedTable.AsEnumerable().Select(row => (decimal)row[0]).FirstOrDefault()));
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(
+                                    String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                );
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                                    String.Format("An unexpected error occurred.\n Error Details:\n{0}", ex.Message)
+                                );
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+            finally
+            {
+                newfinalReportInsertedTable?.Dispose();
             }
         }
 
@@ -745,5 +863,22 @@ namespace FinanceAPI.Controllers
         public required decimal[] DividendYield { get; set; }
         public required string[] AdvisorNotes { get; set; }
         public required string[] CurrencyType { get; set; }
+    }
+
+    public class FinalReport
+    {
+        public Int64 FinalReportID { get; set; }
+        public Int64 AccountNumber { get; set; }
+        public required string ReportTitle { get; set; }
+        public required byte[] ReportPdf { get; set; }
+        public DateTime ReportDate { get; set; }
+        public Int64 PresetID { get; set; }
+        public string CreatedBy { get; set; } = string.Empty;
+        public Int64 StatusCd { get; set; }
+        public required string ReportIDs { get; set; }
+        public DateTime CreatedOn { get; set; }
+        public DateTime LastUpdatedOn { get; set; }
+        public required string ClientName { get; set; }
+        public required string PresetName { get; set; }
     }
 }
