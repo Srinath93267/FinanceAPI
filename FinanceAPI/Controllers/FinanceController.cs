@@ -15,7 +15,6 @@ namespace FinanceAPI.Controllers
         #region Private Variables
         private readonly ILogger<FinanceController> _logger;
         private readonly IConfiguration _configuration;
-        private readonly string database = string.Empty;
         private readonly string connectionString = string.Empty;
         private readonly string _secretApiKey = string.Empty;
         #endregion
@@ -23,9 +22,8 @@ namespace FinanceAPI.Controllers
         {
             _logger = logger;
             _configuration = configuration;
-            database = _configuration["Database"] ?? string.Empty;
             _secretApiKey = _configuration["ApiSettings:SecretKey"] ?? string.Empty;
-            connectionString = String.Format("Server=localhost;Database={0};Trusted_Connection=True;Encrypt=True;TrustServerCertificate=True;", database);
+            connectionString = _configuration["ConnectionString"] ?? string.Empty;
         }
 
         // GET: api/<FinanceController>
@@ -657,12 +655,12 @@ namespace FinanceAPI.Controllers
 
         [HttpPut]
         [Route("CreateNewFinalReportRequest")]
-        public ActionResult<int> CreateNewFinalReportRequest([FromBody] FinalReport finalReport)
+        public ActionResult<int> CreateNewFinalReportRequest([FromHeader(Name = "X-API-KEY")] string apiKey, [FromBody] FinalReport finalReport)
         {
-            //if (apiKey != _secretApiKey || apiKey == string.Empty)
-            //{
-            //    return Unauthorized(new { message = "Invalid API Key" });
-            //}
+            if (apiKey != _secretApiKey || apiKey == string.Empty)
+            {
+                return Unauthorized(new { message = "Invalid API Key" });
+            }
 
             string newfinalReportInsertQuery = String.Format("EXEC INSERT_FINAL_REPORT_REQUEST @Accountnumber={0}, @Reporttitle='{1}', @Reportdate='{2}', @Createdby='{3}', @Statuscode={4}, @Reportids='{5}';",
                                                                                                 finalReport.AccountNumber, finalReport.ReportTitle, finalReport.ReportDate.ToString("yyyy/MM/dd").Replace('/', '-'), finalReport.CreatedBy, 500, finalReport.ReportIDs);
