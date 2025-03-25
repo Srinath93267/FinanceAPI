@@ -19,6 +19,22 @@ jobs:
         with:
           dotnet-version: '8.0.x'  # Use the latest .NET 8
 
+      - name: Create appsettings.json
+        run: |
+          echo '{
+            "Logging": {
+              "LogLevel": {
+                "Default": "Information",
+                "Microsoft.AspNetCore": "Warning"
+              }
+            },
+            "AllowedHosts": "*",
+            "ConnectionString": "${{ secrets.CONNECTION_STRING }}",
+            "ApiSettings": {
+              "SecretKey": "${{ secrets.API_SECRET_KEY }}"
+            }
+          }' > appsettings.json
+
       - name: Restore Dependencies
         run: dotnet restore
 

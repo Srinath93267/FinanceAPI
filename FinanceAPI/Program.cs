@@ -13,6 +13,11 @@ builder.Services.AddCors(options =>
         builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 });
 
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.PropertyNameCaseInsensitive = true; // Ensures case-insensitive JSON processing
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
