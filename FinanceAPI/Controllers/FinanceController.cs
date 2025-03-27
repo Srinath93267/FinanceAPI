@@ -17,6 +17,7 @@ namespace FinanceAPI.Controllers
         private readonly IConfiguration _configuration;
         private readonly string connectionString = string.Empty;
         private readonly string _secretApiKey = string.Empty;
+        private List<FinalReport> finalReportsData = [];
         #endregion
         public FinanceController(IConfiguration configuration, ILogger<FinanceController> logger)
         {
@@ -510,15 +511,15 @@ namespace FinanceAPI.Controllers
         }
 
         [HttpGet]
-        [Route("GetFinalReportsByAccount")]
-        public ActionResult<List<FinalReport>> GetFinalReportsByAccount([FromHeader(Name = "X-API-KEY")] string apiKey, [FromHeader(Name = "ACCOUNT")] Int64 AccountNumber)
+        [Route("GetReadyReportsByAccount")]
+        public ActionResult<List<FinalReport>> GetReadyReportsByAccount([FromHeader(Name = "X-API-KEY")] string apiKey, [FromHeader(Name = "ACCOUNT")] Int64 AccountNumber)
         {
             if (apiKey != _secretApiKey || apiKey == string.Empty)
             {
                 return Unauthorized(new { message = "Invalid API Key" });
             }
 
-            List<FinalReport> finalReportsData=[];
+            List<FinalReport> ReadyReportsData = [];
             string query = String.Format("EXEC GET_FINAL_REPORT_REQUEST_BY_ACCNUM @Accountnumber={0};", AccountNumber);
             DataTable finalReportsDataTable = new();
             using (SqlConnection connection = new(connectionString))
@@ -548,6 +549,7 @@ namespace FinanceAPI.Controllers
                             ClientName = (string)row[11],
                             PresetName = row[12]!=DBNull.Value?(string)row[12]:""
                         })];
+                        ReadyReportsData = [.. finalReportsData.Where(row => row.StatusCd == 200)];
                     }
                     else
                     {
@@ -575,7 +577,77 @@ namespace FinanceAPI.Controllers
                 }
             }
 
-            return finalReportsData;
+            return ReadyReportsData;
+        }
+
+        [HttpGet]
+        [Route("GetQueueReportsByAccount")]
+        public ActionResult<List<FinalReport>> GetQueueReportsByAccount([FromHeader(Name = "X-API-KEY")] string apiKey, [FromHeader(Name = "ACCOUNT")] Int64 AccountNumber)
+        {
+            if (apiKey != _secretApiKey || apiKey == string.Empty)
+            {
+                return Unauthorized(new { message = "Invalid API Key" });
+            }
+
+            List<FinalReport> QueueReportsData = [];
+            string query = String.Format("EXEC GET_FINAL_REPORT_REQUEST_BY_ACCNUM @Accountnumber={0};", AccountNumber);
+            DataTable finalReportsDataTable = new();
+            using (SqlConnection connection = new(connectionString))
+            {
+                using SqlCommand command = new(query, connection);
+                try
+                {
+                    connection.Open();
+
+                    using SqlDataReader reader = command.ExecuteReader();
+                    if (reader.HasRows)
+                    {
+                        finalReportsDataTable.Load(reader);
+                        finalReportsData = [.. finalReportsDataTable.AsEnumerable().Select(row => new FinalReport
+                        {
+                            FinalReportID = Convert.ToInt32(row[0]),
+                            AccountNumber = Convert.ToInt32(row[1]),
+                            ReportTitle = (string)row[2],
+                            ReportPdf = row[3] != DBNull.Value ? (byte[])row[3] : Array.Empty<byte>(),
+                            ReportDate = (DateTime)row[4],
+                            PresetID = Convert.ToInt32(row[5]!=DBNull.Value?row[5]:0),
+                            CreatedBy = (string)row[6],
+                            StatusCd = Convert.ToInt32(row[7]),
+                            ReportIDs = (string)row[8],
+                            CreatedOn = (DateTime)row[9],
+                            LastUpdatedOn = (DateTime)row[10],
+                            ClientName = (string)row[11],
+                            PresetName = row[12]!=DBNull.Value?(string)row[12]:""
+                        })];
+                        QueueReportsData = [.. finalReportsData.Where(row => row.StatusCd != 200)];
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+
+                }
+                catch (SqlException ex)
+                {
+                    _logger.LogError(
+                                     String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                 );
+                    return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(
+                                   String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                               );
+                    return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                }
+                finally
+                {
+                    finalReportsDataTable?.Dispose();
+                }
+            }
+
+            return QueueReportsData;
         }
 
         [HttpPut]
