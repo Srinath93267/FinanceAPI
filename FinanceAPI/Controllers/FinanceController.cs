@@ -18,13 +18,17 @@ namespace FinanceAPI.Controllers
         private readonly string connectionString = string.Empty;
         private readonly string _secretApiKey = string.Empty;
         private List<FinalReport> finalReportsData = [];
+        private readonly Services.Services _service;
+        private readonly Repositories.DatabaseInteractions _databaseInteractor;
         #endregion
-        public FinanceController(IConfiguration configuration, ILogger<FinanceController> logger)
+        public FinanceController(IConfiguration configuration, ILogger<FinanceController> logger, Services.Services service, Repositories.DatabaseInteractions databaseInteractor)
         {
             _logger = logger;
             _configuration = configuration;
             _secretApiKey = _configuration["ApiSettings:SecretKey"] ?? string.Empty;
             connectionString = _configuration["ConnectionString"] ?? string.Empty;
+            _service = service;
+            _databaseInteractor = databaseInteractor;
         }
 
         // GET: api/<FinanceController>
@@ -533,6 +537,7 @@ namespace FinanceAPI.Controllers
                     if (reader.HasRows)
                     {
                         finalReportsDataTable.Load(reader);
+                        reader?.DisposeAsync();
                         finalReportsData = [.. finalReportsDataTable.AsEnumerable().Select(row => new FinalReport
                         {
                             FinalReportID = Convert.ToInt32(row[0]),
@@ -685,7 +690,6 @@ namespace FinanceAPI.Controllers
                         {
                             using SqlDataReader reader2 = command2.ExecuteReader();
                             reader2?.Dispose();
-                            //command2.Dispose();
                         }
                         catch (SqlException ex)
                         {
@@ -771,6 +775,61 @@ namespace FinanceAPI.Controllers
             finally
             {
                 newfinalReportInsertedTable?.Dispose();
+            }
+        }
+
+        [HttpPut]
+        [Route("ProcessNewFinalReportRequest")]
+        public async Task<IActionResult> ProcessNewFinalReportRequestAsync([FromHeader(Name = "X-API-KEY")] string apiKey, [FromBody] int finalReportID)
+        {
+            if (apiKey != _secretApiKey || apiKey == string.Empty)
+            {
+                return Unauthorized(new { message = "Invalid API Key" });
+            }
+
+            string getNewFinalReportInsertedQuery = String.Format("EXEC GET_FINAL_REPORT_REQUEST_BY_REPORT_ID @Reportid={0}", finalReportID);
+            DataTable getNewFinalReportInsertedTable = new();
+            using SqlConnection connection = new(connectionString);
+            using SqlCommand command = new(getNewFinalReportInsertedQuery, connection);
+            try
+            {
+                connection.Open();
+
+                using SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    getNewFinalReportInsertedTable.Load(reader);
+                    reader?.Dispose();
+                    int AccountNumber = getNewFinalReportInsertedTable.AsEnumerable().Select(row => Convert.ToInt32(row[1])).FirstOrDefault();
+                    string[] ReportIds = (getNewFinalReportInsertedTable.AsEnumerable().Select(row => (string)row[8]).FirstOrDefault()??"1, 2").Split(',');
+                    Task<string> mergedReportTask = _service.ProcessReportAsync(AccountNumber, ReportIds);
+                    string mergedReport = await mergedReportTask;
+                    _databaseInteractor.UpdateFinalReportRequest(finalReportID, 200, mergedReport);
+                    return StatusCode(StatusCodes.Status200OK, "Report has been processed successfully");
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status404NotFound, $"Final Report Id:{finalReportID} not found");
+                }
+            }
+            catch (SqlException ex)
+            {
+                _databaseInteractor.UpdateFinalReportRequest(finalReportID, 500);
+                _logger.LogError(
+                                    String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                );
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                                    String.Format("An unexpected error occurred.\n Error Details:\n{0}", ex.Message)
+                                );
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+            finally
+            {
+                getNewFinalReportInsertedTable?.Dispose();
             }
         }
 
