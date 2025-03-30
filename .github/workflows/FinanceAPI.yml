@@ -30,6 +30,7 @@ jobs:
             },
             "AllowedHosts": "*",
             "ConnectionString": "${{ secrets.CONNECTION_STRING }}",
+            "ReportAPIPrefix": "${{ secrets.REPORT_API_PREFIX }}",
             "ApiSettings": {
               "SecretKey": "${{ secrets.API_SECRET_KEY }}"
             }
