@@ -1,16 +1,23 @@
 # Build stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /app
-COPY *.csproj ./
-RUN dotnet restore
-COPY . ./
-RUN dotnet publish -c Release -o out
+WORKDIR /src
+
+# Copy everything, then restore and build
+COPY . .
+
+# Change this if your .csproj is in a subfolder like /FinanceAPI
+RUN dotnet restore "./FinanceAPI.csproj"
+RUN dotnet publish "./FinanceAPI.csproj" -c Release -o /app/publish
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
-COPY --from=build /app/out .
-ENV ASPNETCORE_URLS=http://+:5000
+
+COPY --from=build /app/publish .
+
+# Expose the Render-assigned port
+ENV ASPNETCORE_URLS=http://+:10000
 ENV ASPNETCORE_ENVIRONMENT=Development
-EXPOSE 5000
+EXPOSE 10000
+
 ENTRYPOINT ["dotnet", "FinanceAPI.dll"]
