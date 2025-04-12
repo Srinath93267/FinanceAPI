@@ -6,8 +6,8 @@ WORKDIR /src
 COPY . .
 
 # Change this if your .csproj is in a subfolder like /FinanceAPI
-RUN dotnet restore "./FinanceAPI.csproj"
-RUN dotnet publish "./FinanceAPI.csproj" -c Release -o /app/publish
+RUN dotnet restore "./FinanceAPI/FinanceAPI.csproj"
+RUN dotnet publish "./FinanceAPI/FinanceAPI.csproj" -c Release -o /app/publish
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
