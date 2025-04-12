@@ -749,7 +749,7 @@ namespace FinanceAPI.Controllers
                                                                                         finalReportRequest.AccountNumber, finalReportRequest.ReportTitle,
                                                                                         finalReportRequest.ReportDate.ToString("yyyy/MM/dd").Replace('/', '-'),
                                                                                         finalReportRequest.CreatedBy, 500, finalReportRequest.ReportIDs
-                                                                                    ):
+                                                                                    ) :
                                                                             String.Format
                                                                                     (
                                                                                         "EXEC INSERT_FINAL_REPORT_REQUEST " +
@@ -758,7 +758,7 @@ namespace FinanceAPI.Controllers
                                                                                         "@Statuscode={5}, @Reportids='{6}';",
                                                                                         finalReportRequest.AccountNumber, finalReportRequest.ReportTitle,
                                                                                         finalReportRequest.ReportDate.ToString("yyyy/MM/dd").Replace('/', '-'),
-                                                                                        finalReportRequest.PresetID, finalReportRequest.CreatedBy, 
+                                                                                        finalReportRequest.PresetID, finalReportRequest.CreatedBy,
                                                                                         500, finalReportRequest.ReportIDs
                                                                                     );
 
@@ -949,6 +949,16 @@ namespace FinanceAPI.Controllers
                     return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                 }
             }
+        }
+
+        [HttpPost]
+        [Route("PostCronJobTest")]
+        public IActionResult PostCronJobTest()
+        {
+            // Your batch logic here
+            Console.WriteLine("CRON job triggered at: " + DateTime.UtcNow);
+
+            return Ok(new { status = "Job executed successfully at " + DateTime.UtcNow });
         }
 
         #region Template Code
