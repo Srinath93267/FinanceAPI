@@ -137,7 +137,6 @@ namespace FinanceAPI.Repositories
                 connection?.Dispose();
             }
         }
-
         public async Task AddReportToAPreset(int presetID, PresetInfo newSelectedReport)
         {
             string deleteReportFromAPresetQuery = String.Format("EXEC ADD_REPORT_TO_PRESET @PresetId={0}, @ReportId={1}", presetID, newSelectedReport.Reports.Id);

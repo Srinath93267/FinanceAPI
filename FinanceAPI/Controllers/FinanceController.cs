@@ -731,15 +731,37 @@ namespace FinanceAPI.Controllers
 
         [HttpPut]
         [Route("CreateNewFinalReportRequest")]
-        public ActionResult<int> CreateNewFinalReportRequest([FromHeader(Name = "X-API-KEY")] string apiKey, [FromBody] FinalReport finalReport)
+        public ActionResult<int> CreateNewFinalReportRequest([FromHeader(Name = "X-API-KEY")] string apiKey, [FromBody] FinalReportRequest finalReportRequest)
         {
             if (apiKey != _secretApiKey || apiKey == string.Empty)
             {
                 return Unauthorized(new { message = "Invalid API Key" });
             }
 
-            string newfinalReportInsertQuery = String.Format("EXEC INSERT_FINAL_REPORT_REQUEST @Accountnumber={0}, @Reporttitle='{1}', @Reportdate='{2}', @Createdby='{3}', @Statuscode={4}, @Reportids='{5}';",
-                                                                                                finalReport.AccountNumber, finalReport.ReportTitle, finalReport.ReportDate.ToString("yyyy/MM/dd").Replace('/', '-'), finalReport.CreatedBy, 500, finalReport.ReportIDs);
+            string newfinalReportInsertQuery = string.Empty;
+
+            newfinalReportInsertQuery = finalReportRequest.PresetID == 0 ? String.Format
+                                                                                    (
+                                                                                        "EXEC INSERT_FINAL_REPORT_REQUEST " +
+                                                                                        "@Accountnumber={0}, @Reporttitle='{1}', " +
+                                                                                        "@Reportdate='{2}', @Createdby='{3}', " +
+                                                                                        "@Statuscode={4}, @Reportids='{5}';",
+                                                                                        finalReportRequest.AccountNumber, finalReportRequest.ReportTitle,
+                                                                                        finalReportRequest.ReportDate.ToString("yyyy/MM/dd").Replace('/', '-'),
+                                                                                        finalReportRequest.CreatedBy, 500, finalReportRequest.ReportIDs
+                                                                                    ):
+                                                                            String.Format
+                                                                                    (
+                                                                                        "EXEC INSERT_FINAL_REPORT_REQUEST " +
+                                                                                        "@Accountnumber={0}, @Reporttitle='{1}', " +
+                                                                                        "@Reportdate='{2}', @PresetID={3}, @Createdby='{4}', " +
+                                                                                        "@Statuscode={5}, @Reportids='{6}';",
+                                                                                        finalReportRequest.AccountNumber, finalReportRequest.ReportTitle,
+                                                                                        finalReportRequest.ReportDate.ToString("yyyy/MM/dd").Replace('/', '-'),
+                                                                                        finalReportRequest.PresetID, finalReportRequest.CreatedBy, 
+                                                                                        500, finalReportRequest.ReportIDs
+                                                                                    );
+
             DataTable newfinalReportInsertedTable = new();
             using SqlConnection connection = new(connectionString);
             using SqlCommand command = new(newfinalReportInsertQuery, connection);
@@ -1055,6 +1077,15 @@ namespace FinanceAPI.Controllers
         public required string PresetName { get; set; }
     }
 
+    public class FinalReportRequest
+    {
+        public Int64 AccountNumber { get; set; }
+        public required string ReportTitle { get; set; }
+        public DateTime ReportDate { get; set; }
+        public Int64 PresetID { get; set; }
+        public string CreatedBy { get; set; } = string.Empty;
+        public required string ReportIDs { get; set; }
+    }
     public class UpdatePreset
     {
         public required int PresetId { get; set; }
