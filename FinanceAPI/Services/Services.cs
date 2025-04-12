@@ -32,7 +32,7 @@ namespace FinanceAPI.Services
 
                     string responseData = await response.Content.ReadAsStringAsync();
                     responseData = responseData.Replace("data:application/pdf;base64,", "");
-                    ReportResponse report = JsonConvert.DeserializeObject<ReportResponse>(responseData);
+                    ReportResponse report = JsonConvert.DeserializeObject<ReportResponse>(responseData) ?? new ReportResponse { Report = "" };
                     reportArray.Add(Convert.FromBase64String(report.Report));
                 }
                 byte[] mergedReportArray = GetMergedReport(reportArray);
@@ -68,7 +68,7 @@ namespace FinanceAPI.Services
                 foreach (byte[] report in reportArray)
                 {
                     AddPdfToDocument(copy, report);
-                }  
+                }
 
                 document.Close();
                 return outputStream.ToArray();
