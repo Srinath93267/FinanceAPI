@@ -778,6 +778,44 @@ namespace FinanceAPI.Controllers
             }
         }
 
+        [HttpPatch]
+        [Route("UpdatePreset")]
+        public async Task<IActionResult> UpdatePreset([FromHeader(Name = "X-API-KEY")] string apiKey, [FromBody] UpdatePreset updatePreset)
+        {
+            if (apiKey != _secretApiKey || apiKey == string.Empty)
+            {
+                return Unauthorized(new { message = "Invalid API Key" });
+            }
+            try
+            {
+                foreach (PresetInfo presetInfo in updatePreset.RemovedSelectedReports)
+                {
+                    await _databaseInteractor.DeleteReportFromAPreset(updatePreset.PresetId, presetInfo);
+                }
+
+                foreach (PresetInfo presetInfo in updatePreset.NewSelectedReports)
+                {
+                    await _databaseInteractor.AddReportToAPreset(updatePreset.PresetId, presetInfo);
+                }
+
+                return StatusCode(StatusCodes.Status200OK, "Preset has been Updated Successfully");
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(
+                                    String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                );
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                                    String.Format("An unexpected error occurred.\n Error Details:\n{0}", ex.Message)
+                                );
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+        }
+
         [HttpPut]
         [Route("ProcessNewFinalReportRequest")]
         public async Task<IActionResult> ProcessNewFinalReportRequestAsync([FromHeader(Name = "X-API-KEY")] string apiKey, [FromBody] int finalReportID)
@@ -801,7 +839,7 @@ namespace FinanceAPI.Controllers
                     getNewFinalReportInsertedTable.Load(reader);
                     reader?.Dispose();
                     int AccountNumber = getNewFinalReportInsertedTable.AsEnumerable().Select(row => Convert.ToInt32(row[1])).FirstOrDefault();
-                    string[] ReportIds = (getNewFinalReportInsertedTable.AsEnumerable().Select(row => (string)row[8]).FirstOrDefault()??"1, 2").Split(',');
+                    string[] ReportIds = (getNewFinalReportInsertedTable.AsEnumerable().Select(row => (string)row[8]).FirstOrDefault() ?? "1, 2").Split(',');
                     Task<string> mergedReportTask = _service.ProcessReportAsync(AccountNumber, ReportIds);
                     string mergedReport = await mergedReportTask;
                     _databaseInteractor.UpdateFinalReportRequest(finalReportID, 200, mergedReport);
@@ -933,6 +971,12 @@ namespace FinanceAPI.Controllers
         public required string CreatedBy { get; set; } = string.Empty;
     }
 
+    public class PresetInfo
+    {
+        public required ReportList Reports { get; set; }
+        public required bool Selected { get; set; }
+    }
+
     public class NewPreset
     {
         public required string Name { get; set; }
@@ -1009,5 +1053,13 @@ namespace FinanceAPI.Controllers
         public DateTime LastUpdatedOn { get; set; }
         public required string ClientName { get; set; }
         public required string PresetName { get; set; }
+    }
+
+    public class UpdatePreset
+    {
+        public required int PresetId { get; set; }
+        public required PresetInfo[] NewSelectedReports { get; set; }
+        public required PresetInfo[] RemovedSelectedReports { get; set; }
+
     }
 }
