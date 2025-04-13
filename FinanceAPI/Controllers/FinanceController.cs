@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Options;
 using System;
 using System.Data;
 using System.Linq;
@@ -20,13 +21,15 @@ namespace FinanceAPI.Controllers
         private List<FinalReport> finalReportsData = [];
         private readonly Services.Services _service;
         private readonly Repositories.DatabaseInteractions _databaseInteractor;
+        private readonly ApiSettings _settings;
         #endregion
-        public FinanceController(IConfiguration configuration, ILogger<FinanceController> logger, Services.Services service, Repositories.DatabaseInteractions databaseInteractor)
+        public FinanceController(IConfiguration configuration, ILogger<FinanceController> logger, Services.Services service, Repositories.DatabaseInteractions databaseInteractor, IOptions<ApiSettings> options)
         {
             _logger = logger;
             _configuration = configuration;
-            _secretApiKey = _configuration["ApiSettings:SecretKey"] ?? string.Empty;
-            connectionString = _configuration["ApiSettings:ConnectionString"] ?? string.Empty;
+            _settings = options.Value;
+            _secretApiKey = $"{_settings.SecretKey}" ?? string.Empty;
+            connectionString = $"{_settings.ConnectionString}" ?? string.Empty;
             _service = service;
             _databaseInteractor = databaseInteractor;
         }
