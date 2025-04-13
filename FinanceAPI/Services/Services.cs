@@ -21,7 +21,7 @@ namespace FinanceAPI.Services
                 List<byte[]> reportArray = new();
                 foreach (string ReportId in ReportsIds)
                 {
-                    string API = _configuration["ReportAPIPrefix"] + GetAPIUrl(ReportId);
+                    string API = _configuration["ApiSettings:ReportAPIPrefix"] + GetAPIUrl(ReportId);
                     // Add Account Number to Header
                     client.DefaultRequestHeaders.Clear();
                     client.DefaultRequestHeaders.Add("ACCOUNT", accountNumber.ToString());

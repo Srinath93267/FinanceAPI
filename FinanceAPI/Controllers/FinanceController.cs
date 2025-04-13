@@ -26,7 +26,7 @@ namespace FinanceAPI.Controllers
             _logger = logger;
             _configuration = configuration;
             _secretApiKey = _configuration["ApiSettings:SecretKey"] ?? string.Empty;
-            connectionString = _configuration["ConnectionString"] ?? string.Empty;
+            connectionString = _configuration["ApiSettings:ConnectionString"] ?? string.Empty;
             _service = service;
             _databaseInteractor = databaseInteractor;
         }

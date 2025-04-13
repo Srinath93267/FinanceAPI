@@ -17,7 +17,7 @@ namespace FinanceAPI.Repositories
         {
             _logger = logger;
             _configuration = configuration;
-            connectionString = _configuration["ConnectionString"] ?? string.Empty;
+            connectionString = _configuration["ApiSettings:ConnectionString"] ?? string.Empty;
         }
         public void UpdateFinalReportRequest(int finalReportID, int statusCode, string mergedReport)
         {
