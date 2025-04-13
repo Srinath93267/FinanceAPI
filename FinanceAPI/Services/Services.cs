@@ -4,15 +4,18 @@ using System;
 using Newtonsoft.Json;
 using iTextSharp.text.pdf;
 using iTextSharp.text;
+using System.Runtime;
+using Microsoft.Extensions.Options;
 
 namespace FinanceAPI.Services
 {
-    public class Services(IConfiguration configuration, ILogger<Services> logger)
+    public class Services(IConfiguration configuration, ILogger<Services> logger, IOptions<ApiSettings> options)
     {
         #region Private Variables
         private readonly ILogger<Services> _logger = logger;
         private readonly IConfiguration _configuration = configuration;
         private static readonly HttpClient client = new();
+        private readonly ApiSettings _settings = options.Value;
         #endregion
         public async Task<string> ProcessReportAsync(int accountNumber, string[] ReportsIds)
         {
@@ -21,7 +24,7 @@ namespace FinanceAPI.Services
                 List<byte[]> reportArray = new();
                 foreach (string ReportId in ReportsIds)
                 {
-                    string API = _configuration["ReportAPIPrefix"] + GetAPIUrl(ReportId);
+                    string API = $"{_settings.ReportAPIPrefix}" + GetAPIUrl(ReportId);
                     // Add Account Number to Header
                     client.DefaultRequestHeaders.Clear();
                     client.DefaultRequestHeaders.Add("ACCOUNT", accountNumber.ToString());

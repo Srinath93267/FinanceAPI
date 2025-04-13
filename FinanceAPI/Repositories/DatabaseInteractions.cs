@@ -2,7 +2,9 @@
 using FinanceAPI.Controllers;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System.Data;
+using System.Runtime;
 
 namespace FinanceAPI.Repositories
 {
@@ -12,12 +14,14 @@ namespace FinanceAPI.Repositories
         private readonly string connectionString = string.Empty;
         private readonly IConfiguration _configuration;
         private readonly ILogger<DatabaseInteractions> _logger;
+        private readonly ApiSettings _settings;
         #endregion
-        public DatabaseInteractions(IConfiguration configuration, ILogger<DatabaseInteractions> logger)
+        public DatabaseInteractions(IConfiguration configuration, ILogger<DatabaseInteractions> logger, IOptions<ApiSettings> options)
         {
             _logger = logger;
             _configuration = configuration;
-            connectionString = _configuration["ConnectionString"] ?? string.Empty;
+            _settings = options.Value;
+            connectionString = $"{_settings.ConnectionString}" ?? string.Empty;
         }
         public void UpdateFinalReportRequest(int finalReportID, int statusCode, string mergedReport)
         {
