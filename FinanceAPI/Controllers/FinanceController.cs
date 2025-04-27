@@ -954,14 +954,65 @@ namespace FinanceAPI.Controllers
             }
         }
 
-        [HttpPost]
-        [Route("PostCronJobTest")]
-        public IActionResult PostCronJobTest()
+        [HttpDelete]
+        [Route("DeleteFinalReport")]
+        public IActionResult DeleteFinalReport([FromHeader(Name = "X-API-KEY")] string apiKey, [FromBody] int finalReportID)
         {
-            // Your batch logic here
-            Console.WriteLine("CRON job triggered at: " + DateTime.UtcNow);
+            if (apiKey != _secretApiKey || apiKey == string.Empty)
+            {
+                return Unauthorized(new { message = "Invalid API Key" });
+            }
 
-            return Ok(new { status = "Job executed successfully at " + DateTime.UtcNow });
+            string getAFinalReportDetailquery = String.Format("EXEC GET_FINAL_REPORT_REQUEST_BY_REPORT_ID @ReportId={0}", finalReportID);
+            using SqlConnection connection = new(connectionString);
+            using SqlCommand command = new(getAFinalReportDetailquery, connection);
+            try
+            {
+                connection.Open();
+                using SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    reader.Dispose();
+                    string deleteAFinalReportquery = String.Format("EXEC DELETE_FINAL_REPORT @ReportId={0}", finalReportID);
+                    using SqlCommand command2 = new(deleteAFinalReportquery, connection);
+                    try
+                    {
+                        using SqlDataReader reader2 = command2.ExecuteReader();
+                        reader2.Dispose();
+                        return StatusCode(StatusCodes.Status200OK, "The Final Report has been deleted sucessfully");
+                    }
+                    catch (SqlException ex)
+                    {
+                        _logger.LogError(
+                                            String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                        );
+                        return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                    }
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status404NotFound, "The Final Report was not found");
+                }     
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(
+                                    String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                );
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                                    String.Format("An unexpected error occurred.\n Error Details:\n{0}", ex.Message)
+                                );
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+            finally
+            {
+                connection?.Close();
+                command?.Dispose();
+            }
         }
 
         #region Template Code
@@ -1099,6 +1150,7 @@ namespace FinanceAPI.Controllers
         public string CreatedBy { get; set; } = string.Empty;
         public required string ReportIDs { get; set; }
     }
+
     public class UpdatePreset
     {
         public required int PresetId { get; set; }
