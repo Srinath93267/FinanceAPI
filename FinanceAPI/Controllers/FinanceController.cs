@@ -780,22 +780,25 @@ namespace FinanceAPI.Controllers
                 }
                 _logger.LogInformation(
                                     String.Format("The Final Report request has been created successfully. Final Report ID: {0}", newfinalReportInsertedTable.AsEnumerable().Select(row => (decimal)row[0]).FirstOrDefault()));
-                return StatusCode(StatusCodes.Status200OK, String.Format("The Final Report request has been created successfully. Final Report ID: {0}",
-                                                           newfinalReportInsertedTable.AsEnumerable().Select(row => (decimal)row[0]).FirstOrDefault()));
+                return StatusCode(StatusCodes.Status200OK, new
+                {
+                    message = String.Format("The Final Report request has been created successfully. Final Report ID: {0}",
+                                                           newfinalReportInsertedTable.AsEnumerable().Select(row => (decimal)row[0]).FirstOrDefault())
+                });
             }
             catch (SqlException ex)
             {
                 _logger.LogError(
                                     String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
                                 );
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
             }
             catch (Exception ex)
             {
                 _logger.LogError(
                                     String.Format("An unexpected error occurred.\n Error Details:\n{0}", ex.Message)
                                 );
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
             }
             finally
             {
@@ -979,19 +982,19 @@ namespace FinanceAPI.Controllers
                     {
                         using SqlDataReader reader2 = command2.ExecuteReader();
                         reader2.Dispose();
-                        return StatusCode(StatusCodes.Status200OK, "The Final Report has been deleted sucessfully");
+                        return StatusCode(StatusCodes.Status200OK, new { message = "The Final Report has been deleted successfully" });
                     }
                     catch (SqlException ex)
                     {
                         _logger.LogError(
                                             String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
                                         );
-                        return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                        return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
                     }
                 }
                 else
                 {
-                    return StatusCode(StatusCodes.Status404NotFound, "The Final Report was not found");
+                    return StatusCode(StatusCodes.Status404NotFound, new { message = "The Final Report was not found" });
                 }     
             }
             catch (SqlException ex)
@@ -999,14 +1002,14 @@ namespace FinanceAPI.Controllers
                 _logger.LogError(
                                     String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
                                 );
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
             }
             catch (Exception ex)
             {
                 _logger.LogError(
                                     String.Format("An unexpected error occurred.\n Error Details:\n{0}", ex.Message)
                                 );
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
             }
             finally
             {
