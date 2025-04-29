@@ -844,6 +844,67 @@ namespace FinanceAPI.Controllers
             }
         }
 
+        [HttpPatch]
+        [Route("RegenerateFinalReport")]
+        public IActionResult RegenerateFinalReport([FromHeader(Name = "X-API-KEY")] string apiKey, [FromBody] int finalReportID)
+        {
+            if (apiKey != _secretApiKey || apiKey == string.Empty)
+            {
+                return Unauthorized(new { message = "Invalid API Key" });
+            }
+
+            string getAFinalReportDetailquery = String.Format("EXEC GET_FINAL_REPORT_REQUEST_BY_REPORT_ID @ReportId={0}", finalReportID);
+            using SqlConnection connection = new(connectionString);
+            using SqlCommand command = new(getAFinalReportDetailquery, connection);
+            try
+            {
+                connection.Open();
+                using SqlDataReader reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    reader.Dispose();
+                    string regenreqAFinalReportquery = String.Format("EXEC REGENERATE_FINAL_REPORT @ReportId={0}", finalReportID);
+                    using SqlCommand command2 = new(regenreqAFinalReportquery, connection);
+                    try
+                    {
+                        using SqlDataReader reader2 = command2.ExecuteReader();
+                        reader2.Dispose();
+                        return StatusCode(StatusCodes.Status200OK, new { message = "The Regeneration request for the final report has been done successfully." });
+                    }
+                    catch (SqlException ex)
+                    {
+                        _logger.LogError(
+                                            String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                        );
+                        return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
+                    }
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status404NotFound, new { message = "The Final Report was not found" });
+                }
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(
+                                    String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                );
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                                    String.Format("An unexpected error occurred.\n Error Details:\n{0}", ex.Message)
+                                );
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
+            }
+            finally
+            {
+                connection?.Close();
+                command?.Dispose();
+            }
+        }
+
         [HttpPut]
         [Route("ProcessNewFinalReportRequest")]
         public async Task<IActionResult> ProcessNewFinalReportRequestAsync([FromHeader(Name = "X-API-KEY")] string apiKey, [FromBody] int finalReportID)
@@ -995,7 +1056,7 @@ namespace FinanceAPI.Controllers
                 else
                 {
                     return StatusCode(StatusCodes.Status404NotFound, new { message = "The Final Report was not found" });
-                }     
+                }
             }
             catch (SqlException ex)
             {
