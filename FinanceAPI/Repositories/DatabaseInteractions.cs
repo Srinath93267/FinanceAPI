@@ -48,13 +48,13 @@ namespace FinanceAPI.Repositories
                 catch (SqlException ex)
                 {
                     _logger.LogError(
-                                     String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                     String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                  );
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(
-                                   String.Format("An unexpected error occurred while update the Final Report request.\n Error Details:\n{0}", ex.Message)
+                                   String.Format("An unexpected error occurred while update the Final Report request.\nError Details:\n{0}", ex)
                                );
                 }
                 finally
@@ -90,13 +90,13 @@ namespace FinanceAPI.Repositories
                 catch (SqlException ex)
                 {
                     _logger.LogError(
-                                     String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                     String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                  );
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(
-                                  String.Format("An unexpected error occurred while update the Final Report request.\n Error Details:\n{0}", ex.Message)
+                                  String.Format("An unexpected error occurred while update the Final Report request.\nError Details:\n{0}", ex)
                               );
                 }
                 finally
@@ -124,14 +124,14 @@ namespace FinanceAPI.Repositories
             catch (SqlException ex)
             {
                 _logger.LogError(
-                                    String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                    String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                 );
                 throw;
             }
             catch (Exception ex)
             {
                 _logger.LogError(
-                                    String.Format("An unexpected error occurred.\n Error Details:\n{0}", ex.Message)
+                                    String.Format("An unexpected error occurred.\nError Details:\n{0}", ex)
                                 );
                 throw;
             }
@@ -158,14 +158,14 @@ namespace FinanceAPI.Repositories
             catch (SqlException ex)
             {
                 _logger.LogError(
-                                    String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                    String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                 );
                 throw;
             }
             catch (Exception ex)
             {
                 _logger.LogError(
-                                    String.Format("An unexpected error occurred.\n Error Details:\n{0}", ex.Message)
+                                    String.Format("An unexpected error occurred.\nError Details:\n{0}", ex)
                                 );
                 throw;
             }

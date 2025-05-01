@@ -76,14 +76,14 @@ namespace FinanceAPI.Controllers
                     catch (SqlException ex)
                     {
                         _logger.LogError(
-                                         String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                         String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                      );
                         return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                     }
                     catch (Exception ex)
                     {
                         _logger.LogError(
-                                       String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                       String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                    );
                         return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                     }
@@ -138,14 +138,14 @@ namespace FinanceAPI.Controllers
                 catch (SqlException ex)
                 {
                     _logger.LogError(
-                                     String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                     String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                  );
                     return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(
-                                   String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                   String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                );
                     return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                 }
@@ -197,14 +197,14 @@ namespace FinanceAPI.Controllers
                 catch (SqlException ex)
                 {
                     _logger.LogError(
-                                     String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                     String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                  );
                     return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(
-                                   String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                   String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                );
                     return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                 }
@@ -251,14 +251,14 @@ namespace FinanceAPI.Controllers
                 catch (SqlException ex)
                 {
                     _logger.LogError(
-                                     String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                     String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                  );
                     return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(
-                                   String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                   String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                );
                     return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                 }
@@ -305,14 +305,14 @@ namespace FinanceAPI.Controllers
                 catch (SqlException ex)
                 {
                     _logger.LogError(
-                                     String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                     String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                  );
                     return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(
-                                   String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                   String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                );
                     return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                 }
@@ -401,14 +401,14 @@ namespace FinanceAPI.Controllers
                 catch (SqlException ex)
                 {
                     _logger.LogError(
-                                     String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                     String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                  );
                     return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(
-                                   String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                   String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                );
                     return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                 }
@@ -497,14 +497,14 @@ namespace FinanceAPI.Controllers
                 catch (SqlException ex)
                 {
                     _logger.LogError(
-                                     String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                     String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                  );
                     return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(
-                                   String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                   String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                );
                     return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                 }
@@ -568,14 +568,14 @@ namespace FinanceAPI.Controllers
                 catch (SqlException ex)
                 {
                     _logger.LogError(
-                                     String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                     String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                  );
                     return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(
-                                   String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                   String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                );
                     return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                 }
@@ -638,14 +638,14 @@ namespace FinanceAPI.Controllers
                 catch (SqlException ex)
                 {
                     _logger.LogError(
-                                     String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                     String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                  );
                     return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(
-                                   String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                   String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                );
                     return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                 }
@@ -701,7 +701,7 @@ namespace FinanceAPI.Controllers
                                 connection.Close();
                             }
                             _logger.LogError(
-                                String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                             );
                             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                         }
@@ -714,14 +714,14 @@ namespace FinanceAPI.Controllers
             catch (SqlException ex)
             {
                 _logger.LogError(
-                                    String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                    String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                 );
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
             catch (Exception ex)
             {
                 _logger.LogError(
-                                    String.Format("An unexpected error occurred.\n Error Details:\n{0}", ex.Message)
+                                    String.Format("An unexpected error occurred.\nError Details:\n{0}", ex)
                                 );
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
@@ -789,14 +789,14 @@ namespace FinanceAPI.Controllers
             catch (SqlException ex)
             {
                 _logger.LogError(
-                                    String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                    String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                 );
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
             }
             catch (Exception ex)
             {
                 _logger.LogError(
-                                    String.Format("An unexpected error occurred.\n Error Details:\n{0}", ex.Message)
+                                    String.Format("An unexpected error occurred.\nError Details:\n{0}", ex)
                                 );
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
             }
@@ -831,14 +831,14 @@ namespace FinanceAPI.Controllers
             catch (SqlException ex)
             {
                 _logger.LogError(
-                                    String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                    String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                 );
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
             catch (Exception ex)
             {
                 _logger.LogError(
-                                    String.Format("An unexpected error occurred.\n Error Details:\n{0}", ex.Message)
+                                    String.Format("An unexpected error occurred.\nError Details:\n{0}", ex)
                                 );
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
@@ -874,7 +874,7 @@ namespace FinanceAPI.Controllers
                     catch (SqlException ex)
                     {
                         _logger.LogError(
-                                            String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                            String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                         );
                         return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
                     }
@@ -887,14 +887,14 @@ namespace FinanceAPI.Controllers
             catch (SqlException ex)
             {
                 _logger.LogError(
-                                    String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                    String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                 );
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
             }
             catch (Exception ex)
             {
                 _logger.LogError(
-                                    String.Format("An unexpected error occurred.\n Error Details:\n{0}", ex.Message)
+                                    String.Format("An unexpected error occurred.\nError Details:\n{0}", ex)
                                 );
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
             }
@@ -928,7 +928,7 @@ namespace FinanceAPI.Controllers
                     getNewFinalReportInsertedTable.Load(reader);
                     reader?.Dispose();
                     int AccountNumber = getNewFinalReportInsertedTable.AsEnumerable().Select(row => Convert.ToInt32(row[1])).FirstOrDefault();
-                    string[] ReportIds = (getNewFinalReportInsertedTable.AsEnumerable().Select(row => (string)row[8]).FirstOrDefault() ?? "1, 2").Split(',');
+                    string[] ReportIds = (getNewFinalReportInsertedTable.AsEnumerable().Select(row => (string)row[8]).FirstOrDefault() ?? "1, 2").Replace(" ", "").Split(',');
                     Task<string> mergedReportTask = _service.ProcessReportAsync(AccountNumber, ReportIds);
                     string mergedReport = await mergedReportTask;
                     _databaseInteractor.UpdateFinalReportRequest(finalReportID, 200, mergedReport);
@@ -941,16 +941,17 @@ namespace FinanceAPI.Controllers
             }
             catch (SqlException ex)
             {
-                _databaseInteractor.UpdateFinalReportRequest(finalReportID, 500);
+                _databaseInteractor.UpdateFinalReportRequest(finalReportID, 400);
                 _logger.LogError(
-                                    String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                    String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                 );
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
             catch (Exception ex)
             {
+                _databaseInteractor.UpdateFinalReportRequest(finalReportID, 400);
                 _logger.LogError(
-                                    String.Format("An unexpected error occurred.\n Error Details:\n{0}", ex.Message)
+                                    String.Format("An unexpected error occurred.\nError Details:\n{0}", ex)
                                 );
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
@@ -990,7 +991,7 @@ namespace FinanceAPI.Controllers
                         catch (SqlException ex)
                         {
                             _logger.LogError(
-                                                String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                                String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                             );
                             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                         }
@@ -1004,14 +1005,14 @@ namespace FinanceAPI.Controllers
                 catch (SqlException ex)
                 {
                     _logger.LogError(
-                                        String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                        String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                     );
                     return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(
-                                        String.Format("An unexpected error occurred.\n Error Details:\n{0}", ex.Message)
+                                        String.Format("An unexpected error occurred.\nError Details:\n{0}", ex)
                                     );
                     return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
                 }
@@ -1048,7 +1049,7 @@ namespace FinanceAPI.Controllers
                     catch (SqlException ex)
                     {
                         _logger.LogError(
-                                            String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                            String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                         );
                         return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
                     }
@@ -1061,14 +1062,14 @@ namespace FinanceAPI.Controllers
             catch (SqlException ex)
             {
                 _logger.LogError(
-                                    String.Format("An unexpected error occurred while executing the query.\n Error Details:\n{0}", ex.Message)
+                                    String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                 );
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
             }
             catch (Exception ex)
             {
                 _logger.LogError(
-                                    String.Format("An unexpected error occurred.\n Error Details:\n{0}", ex.Message)
+                                    String.Format("An unexpected error occurred.\nError Details:\n{0}", ex)
                                 );
                 return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
             }
