@@ -45,7 +45,7 @@ namespace FinanceAPI.Services
             catch (Exception ex)
             {
                 _logger.LogError(
-                                    string.Format("An unexpected error occurred in processing the Report.\n Error Details:\n{0}", ex.Message)
+                                    string.Format("An unexpected error occurred in processing the Report.\nError Details:\n{0}", ex)
                                 );
                 throw;
             }
@@ -55,7 +55,7 @@ namespace FinanceAPI.Services
             return ReportId switch
             {
                 "1" => "/GetPortfolioPerformanceReport",
-                " 2" => "/GetAssetAllocationReport",
+                "2" => "/GetAssetAllocationReport",
                 _ => "",
             };
         }
