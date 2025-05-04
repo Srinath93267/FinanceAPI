@@ -830,21 +830,21 @@ namespace FinanceAPI.Controllers
                     await _databaseInteractor.AddReportToAPreset(updatePreset.PresetId, presetInfo);
                 }
 
-                return StatusCode(StatusCodes.Status200OK, "Preset has been Updated Successfully");
+                return StatusCode(StatusCodes.Status200OK, new { message = "Preset has been Updated Successfully" });
             }
             catch (SqlException ex)
             {
                 _logger.LogError(
                                     String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                 );
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
             }
             catch (Exception ex)
             {
                 _logger.LogError(
                                     String.Format("An unexpected error occurred.\nError Details:\n{0}", ex)
                                 );
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
             }
         }
 
@@ -997,28 +997,28 @@ namespace FinanceAPI.Controllers
                             _logger.LogError(
                                                 String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                             );
-                            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
                         }
                     }
                     else
                     {
                         return StatusCode(StatusCodes.Status404NotFound, "The Preset was not found");
                     }
-                    return StatusCode(StatusCodes.Status200OK, "The Preset has been deleted sucessfully");
+                    return StatusCode(StatusCodes.Status200OK, new { message = "The Preset has been deleted sucessfully" });
                 }
                 catch (SqlException ex)
                 {
                     _logger.LogError(
                                         String.Format("An unexpected error occurred while executing the query.\nError Details:\n{0}", ex)
                                     );
-                    return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                    return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(
                                         String.Format("An unexpected error occurred.\nError Details:\n{0}", ex)
                                     );
-                    return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+                    return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
                 }
             }
         }
@@ -1083,6 +1083,38 @@ namespace FinanceAPI.Controllers
                 command?.Dispose();
             }
         }
+
+        //[HttpPost("GenerateToken")]
+        //public IActionResult GenerateToken([FromBody] LoginRequest request)
+        //{
+        //    // You'd validate user credentials here
+        //    if (request.Username != "admin" || request.Password != "password")
+        //        return Unauthorized();
+
+        //    var key = $"{_settings.SecretKey}" ?? string.Empty;
+        //    var issuer = _configuration["Jwt:Issuer"];
+
+        //    var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+        //    var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+        //    var claims = new[]
+        //    {
+        //        new Claim(JwtRegisteredClaimNames.Sub, request.Username),
+        //        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        //        new Claim("role", "Admin")
+        //    };
+
+        //    var token = new JwtSecurityToken(
+        //        issuer: issuer,
+        //        audience: issuer,
+        //        claims: claims,
+        //        expires: DateTime.UtcNow.AddMinutes(60),
+        //        signingCredentials: credentials
+        //    );
+
+        //    var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+        //    return Ok(new { token = jwt });
+        //}
 
         #region Template Code
         //// GET api/<FinanceController>/5
