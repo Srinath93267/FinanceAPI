@@ -1,9 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Data;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Text;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -750,7 +754,7 @@ namespace FinanceAPI.Controllers
                                                                                         "@Reportdate='{2}', @Createdby='{3}', " +
                                                                                         "@Statuscode={4}, @Reportids='{5}';",
                                                                                         finalReportRequest.AccountNumber, finalReportRequest.ReportTitle,
-                                                                                        finalReportRequest.ReportDate.ToString("yyyy/MM/dd").Replace('/', '-'),
+                                                                                        finalReportRequest.ReportDate.ToString("yyyy-MM-dd HH:mm:ss.fff"),
                                                                                         finalReportRequest.CreatedBy, 500, finalReportRequest.ReportIDs
                                                                                     ) :
                                                                             String.Format
@@ -760,7 +764,7 @@ namespace FinanceAPI.Controllers
                                                                                         "@Reportdate='{2}', @PresetID={3}, @Createdby='{4}', " +
                                                                                         "@Statuscode={5}, @Reportids='{6}';",
                                                                                         finalReportRequest.AccountNumber, finalReportRequest.ReportTitle,
-                                                                                        finalReportRequest.ReportDate.ToString("yyyy/MM/dd").Replace('/', '-'),
+                                                                                        finalReportRequest.ReportDate.ToString("yyyy-MM-dd HH:mm:ss.fff"),
                                                                                         finalReportRequest.PresetID, finalReportRequest.CreatedBy,
                                                                                         500, finalReportRequest.ReportIDs
                                                                                     );
@@ -1222,5 +1226,11 @@ namespace FinanceAPI.Controllers
         public required PresetInfo[] NewSelectedReports { get; set; }
         public required PresetInfo[] RemovedSelectedReports { get; set; }
 
+    }
+
+    public class LoginRequest
+    {
+        public required string Username { get; set; }
+        public required string Password { get; set; }
     }
 }
