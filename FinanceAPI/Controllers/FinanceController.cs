@@ -754,21 +754,22 @@ namespace FinanceAPI.Controllers
                                                                                         "EXEC INSERT_FINAL_REPORT_REQUEST " +
                                                                                         "@Accountnumber={0}, @Reporttitle='{1}', " +
                                                                                         "@Reportdate='{2}', @Createdby='{3}', " +
-                                                                                        "@Statuscode={4}, @Reportids='{5}';",
+                                                                                        "@Statuscode={4}, @Reportids='{5}', @Comments='{6}';",
                                                                                         finalReportRequest.AccountNumber, finalReportRequest.ReportTitle,
                                                                                         finalReportRequest.ReportDate.ToString("yyyy-MM-dd HH:mm:ss.fff"),
-                                                                                        finalReportRequest.CreatedBy, 500, finalReportRequest.ReportIDs
+                                                                                        finalReportRequest.CreatedBy, 500, finalReportRequest.ReportIDs,
+                                                                                        finalReportRequest.Comments
                                                                                     ) :
                                                                             String.Format
                                                                                     (
                                                                                         "EXEC INSERT_FINAL_REPORT_REQUEST " +
                                                                                         "@Accountnumber={0}, @Reporttitle='{1}', " +
                                                                                         "@Reportdate='{2}', @PresetID={3}, @Createdby='{4}', " +
-                                                                                        "@Statuscode={5}, @Reportids='{6}';",
+                                                                                        "@Statuscode={5}, @Reportids='{6}', @Comments='{7}';",
                                                                                         finalReportRequest.AccountNumber, finalReportRequest.ReportTitle,
                                                                                         finalReportRequest.ReportDate.ToString("yyyy-MM-dd HH:mm:ss.fff"),
                                                                                         finalReportRequest.PresetID, finalReportRequest.CreatedBy,
-                                                                                        500, finalReportRequest.ReportIDs
+                                                                                        500, finalReportRequest.ReportIDs, finalReportRequest.Comments
                                                                                     );
 
             DataTable newfinalReportInsertedTable = new();
@@ -1254,6 +1255,7 @@ namespace FinanceAPI.Controllers
         public Int64 PresetID { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
         public required string ReportIDs { get; set; }
+        public string Comments { get; set; } = string.Empty;
     }
 
     public class UpdatePreset
