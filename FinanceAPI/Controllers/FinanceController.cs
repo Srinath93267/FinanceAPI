@@ -558,8 +558,9 @@ namespace FinanceAPI.Controllers
                             ReportIDs = (string)row[8],
                             CreatedOn = (DateTime)row[9],
                             LastUpdatedOn = (DateTime)row[10],
-                            ClientName = (string)row[11],
-                            PresetName = row[12]!=DBNull.Value?(string)row[12]:""
+                            Comments = row[11]!=DBNull.Value?(string)row[11]:"",
+                            ClientName = (string)row[12],
+                            PresetName = row[13]!=DBNull.Value?(string)row[13]:""
                         })];
                         ReadyReportsData = [.. finalReportsData.Where(row => row.StatusCd == 200)];
                     }
@@ -628,8 +629,9 @@ namespace FinanceAPI.Controllers
                             ReportIDs = (string)row[8],
                             CreatedOn = (DateTime)row[9],
                             LastUpdatedOn = (DateTime)row[10],
-                            ClientName = (string)row[11],
-                            PresetName = row[12]!=DBNull.Value?(string)row[12]:""
+                            Comments = row[11]!=DBNull.Value?(string)row[11]:"",
+                            ClientName = (string)row[12],
+                            PresetName = row[13]!=DBNull.Value?(string)row[13]:""
                         })];
                         QueueReportsData = [.. finalReportsData.Where(row => row.StatusCd != 200)];
                     }
@@ -1239,6 +1241,7 @@ namespace FinanceAPI.Controllers
         public required string ReportIDs { get; set; }
         public DateTime CreatedOn { get; set; }
         public DateTime LastUpdatedOn { get; set; }
+        public required string Comments { get; set; }
         public required string ClientName { get; set; }
         public required string PresetName { get; set; }
     }
