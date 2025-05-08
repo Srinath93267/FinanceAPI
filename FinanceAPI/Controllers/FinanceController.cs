@@ -932,8 +932,9 @@ namespace FinanceAPI.Controllers
                     getNewFinalReportInsertedTable.Load(reader);
                     reader?.Dispose();
                     int AccountNumber = getNewFinalReportInsertedTable.AsEnumerable().Select(row => Convert.ToInt32(row[1])).FirstOrDefault();
+                    var ReportDate = getNewFinalReportInsertedTable.AsEnumerable().Select(row => (DateTime)row[4]).FirstOrDefault();
                     string[] ReportIds = (getNewFinalReportInsertedTable.AsEnumerable().Select(row => (string)row[8]).FirstOrDefault() ?? "1, 2").Replace(" ", "").Split(',');
-                    Task<string> mergedReportTask = _service.ProcessReportAsync(AccountNumber, ReportIds);
+                    Task<string> mergedReportTask = _service.ProcessReportAsync(AccountNumber, ReportIds, ReportDate.ToShortDateString());
                     string mergedReport = await mergedReportTask;
                     _databaseInteractor.UpdateFinalReportRequest(finalReportID, 200, mergedReport);
                     return StatusCode(StatusCodes.Status200OK, "Report has been processed successfully");

@@ -17,7 +17,7 @@ namespace FinanceAPI.Services
         private static readonly HttpClient client = new();
         private readonly ApiSettings _settings = options.Value;
         #endregion
-        public async Task<string> ProcessReportAsync(int accountNumber, string[] ReportsIds)
+        public async Task<string> ProcessReportAsync(int accountNumber, string[] ReportsIds, string ReportDate)
         {
             try
             {
@@ -28,6 +28,7 @@ namespace FinanceAPI.Services
                     // Add Account Number to Header
                     client.DefaultRequestHeaders.Clear();
                     client.DefaultRequestHeaders.Add("ACCOUNT", accountNumber.ToString());
+                    client.DefaultRequestHeaders.Add("REPORTDATE", ReportDate);
 
                     HttpResponseMessage response = await client.GetAsync(API);
 
